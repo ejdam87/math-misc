@@ -1,6 +1,7 @@
 from PIL import Image, ImageDraw
 from typing import List, Tuple
 from math import sqrt
+import combinatorics
 
 Pattern  =  List[ int ]
 EMPTY = -1
@@ -50,5 +51,60 @@ def draw(pattern: Pattern) -> None:
 
     im.show()
 
-p = [-1, -1, -1,   0, 1, -1,   -1, -1, -1]
-draw(p)
+def coords(n: int, i: int) -> Tuple[ int, int ]:
+    return i % n, i // n
+
+def valid(p: Pattern) -> bool:
+
+    side = int( sqrt( len(p) ) )
+
+    for i in range( len(p) ):
+
+        if p[ i ] == EMPTY:
+            continue
+
+        num = p[ i ]
+
+        if num == max(p):
+            continue
+
+        j = p.index( num + 1 )
+
+        x, y = coords( side, i )
+        _x, _y = coords( side, j )
+        if abs( x - _x ) <= 1 and abs( y - _y ) <= 1:
+            continue
+        if abs( x - _x ) == 1 and abs( y - _y ) > 1:
+            continue
+        if abs( y - _y ) == 1 and abs( x - _x ) > 1:
+            continue
+
+        return False
+
+    return True
+
+
+def subpatterns(n: int) -> List[ Pattern ]:
+
+    template = [ EMPTY for _ in range( 9 ) ]
+    pattern = template[:]
+
+    indices = [i for i in range(9)]
+    combs = combinatorics.variations(indices, n)
+
+    res = 0
+    for comb in combs:
+
+        k = 0
+        for i in comb:
+            pattern[i] = k
+            k += 1
+
+        if valid(pattern):
+            res += 1
+
+        pattern = template[:]
+
+    return res
+
+print( sum([subpatterns(n) for n in range(1, 10)]) )
