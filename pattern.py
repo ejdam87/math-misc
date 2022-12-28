@@ -92,7 +92,7 @@ def subpatterns(n: int) -> List[ Pattern ]:
     indices = [i for i in range(9)]
     combs = combinatorics.variations(indices, n)
 
-    res = 0
+    res = []
     for comb in combs:
 
         k = 0
@@ -101,10 +101,11 @@ def subpatterns(n: int) -> List[ Pattern ]:
             k += 1
 
         if valid(pattern):
-            res += 1
+            res.append( pattern )
 
         pattern = template[:]
 
     return res
 
-print( sum([subpatterns(n) for n in range(1, 10)]) )
+ps = subpatterns(9)
+draw(ps[54])
