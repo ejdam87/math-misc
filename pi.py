@@ -59,3 +59,6 @@ def get_pi( r: int, epochs: int=10000000 ) -> float:
         total += 1
 
     return ( inside / total ) * 4
+
+
+show_simulation( 600 )
