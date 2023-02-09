@@ -5,5 +5,6 @@ Currently present:
 - basic combinatorics
 - pattern lock brute-forcing
 - Monty Hall's problem simulation
+- Approximation of Riemann's integral
 
 ![Pi visualisation](https://github.com/ejdam87/math-misc/blob/master/pics/pi.png)
