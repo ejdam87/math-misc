@@ -52,4 +52,4 @@ def approx_pi( line_count: int,
     return ( 2 * l ) / ( p * d )
 
 
-print( approx_pi( 10, 100, 100, 1000 ) )
+print( approx_pi( 10, 100, 100, 10000 ) )
