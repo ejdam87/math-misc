@@ -1,5 +1,6 @@
 from typing import Callable
-from math import comb, e, factorial
+from math import comb, e, factorial, sqrt, pi, inf
+import integral
 
 ## --- Discrete distribution
 Probability_function = Callable[ [ int ], float ]
@@ -81,9 +82,43 @@ def uniform_distr( a: float, b: float ) -> Distribution_function:
 
     return inner
 
-## TODO: Normal distribution
-def normal():
-    pass
+
+def normal( u: float, s: float ) -> Density_function:
+    """
+    Normal density
+
+    s is standard deviation ( not dispersion )
+    """
+    def inner( x: float ) -> float:
+        return ( 1 / (sqrt(2*pi) * s) ) * ( e**( (-1/2) * ( ( x - u ) / s )**2 ) )
+
+    return inner
+
+def standard_normal() -> Density_function:
+    """
+    Standard normal distribution
+    """
+    return normal( 0, 1 )
+
+
+def normal_distr( n: Density_function ) -> Distribution_function:
+    """
+    Distribution function of normal distribution
+
+    Not 100% accurate due to using approximate riemann's integral
+    """
+    def inner( x: float ) -> float:
+        return integral.integral( n, -1000, x )
+
+    return inner
+
+def standard_normal_distr() -> Distribution_function:
+    """
+    Distribution function of standard normal distribution
+    """
+    n = normal( 0, 1 )
+    return normal_distr( n )
+
 
 def exponential( l: float ) -> Density_function:
     """
@@ -101,9 +136,3 @@ def exponential_distr( l: float ) -> Distribution_function:
 
     return inner
 ## ---
-
-
-bi = binomial( 10, 1/8 )
-dis = distribution_function( bi )
-print( dis( 10 ) - dis( 0 ) )
-print( bi( 0 ) )

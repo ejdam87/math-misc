@@ -1,5 +1,19 @@
 from typing import Callable
 from random import uniform
+from math import inf
+
+def get_max( f: Callable[ [ float ], float ],
+             a: float,
+             b: float ) -> float:
+    """
+    Returns max. value of f in [a, b]
+    """
+    top = -inf
+    for x in range( a, b + 1 ):
+        top = max( f( x ), top )
+
+    return top
+
 
 def integral( f: Callable[ [ float ], float ],
               a: float,
@@ -11,9 +25,9 @@ def integral( f: Callable[ [ float ], float ],
     total = hit = 0
 
     lower = 0
-    upper = max( f( a ), f( b ) )   # Higher point
+    upper = get_max( f, a, b )
 
-    for _ in range( 100000 ):
+    for _ in range( 1000000 ):
 
         x = uniform( a, b )
         y = uniform( lower, upper )
