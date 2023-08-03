@@ -2,7 +2,7 @@ import numpy as np
 from scipy.io.wavfile import write
 import matplotlib.pyplot as plt
 
-RATE = 44100 ## Standard sampling rate (in Hz)
+RATE = 500 ## Standard sampling rate (in Hz)
 MAX_AMPLITUDE = 32767
 
 def generate_sound( seconds: int ) -> np.array:
@@ -16,6 +16,6 @@ def plot_sound( data: np.array ) -> None:
 
 data = generate_sound( 5 )
 scaled = np.int16(data / np.max(np.abs(data)) * MAX_AMPLITUDE)
-## write('test.wav', RATE, scaled)
 
-plot_sound( data )
+write('test.wav', RATE, scaled)
+## plot_sound( data )
