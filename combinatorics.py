@@ -11,9 +11,9 @@ def permutations(values: List[Any]) -> List[Any]:
 
 
 def permutate(values: List[Any],
-            current: int,
-            last: int,
-            perms: List[Any]) -> None:
+              current: int,
+              last: int,
+              perms: List[Any]) -> None:
 
     if current == last:
         perms.append(values.copy())
