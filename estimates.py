@@ -1,5 +1,8 @@
 import scipy.stats
 import numpy as np
+import matplotlib.pyplot as plt
+
+from typing import Callable
 
 # --- Stats
 def mean(samples: list[float]) -> float:
@@ -16,6 +19,9 @@ def sd(samples: list[float]) -> float:
 
 def sample_sd(samples: list[float]) -> float:
     return np.sqrt(np.var(samples, ddof=1))
+
+def pearson_coeff(x: list[float], y: list[float]) -> float:
+    return scipy.stats.pearsonr(x, y)
 # ---
 
 # --- CDF
@@ -87,7 +93,6 @@ def conf_interval_var(samples: list[float],
     ## RETURNS VARIANCE VALUES (NOT DEVIATION)
     return ( (n - 1) * var / q1, (n - 1) * var / q2 )
 
-
 def conf_interval_meandiff(samples1: list[float],
                            samples2: list[float],
                            confidence: float,
@@ -117,7 +122,6 @@ def conf_interval_meandiff(samples1: list[float],
         diff = q * sd12 * n12
         return ( (m1 - m2) - diff, (m1 - m2) + diff )
 
-
 def conf_interval_sigmarat(samples1: list[float],
                            samples2: list[float],
                            confidence: float) -> tuple[float, float]:
@@ -133,3 +137,80 @@ def conf_interval_sigmarat(samples1: list[float],
 
     ## RETURNS RATIO OF VARIANCES !!!
     return (rat * (1 / q1), rat * (1 / q2))
+
+def conf_interval_binary(samples: list[float], confidence: float) -> tuple[float, float]:
+    m = mean(samples)
+    q = qnorm(1 - confidence / 2)
+    n = len(samples)
+    d = q * np.sqrt( (m * (1 - m)) / (n) )
+
+    return m - d, m + d
+
+def conf_interval_pois(samples: list[float], confidence: float) -> tuple[float, float]:
+    m = mean(samples)
+    q = qnorm(1 - confidence / 2)
+    n = len(samples)
+    d = q * np.sqrt( m / n )
+    return m - d, m + d
+
+# --- linear model
+def linear_model(xs: list[float], 
+                 ys: list[float],
+                 fx: list[Callable[ [float], float ]]) -> list[float]:
+    
+    M = []
+    for x in xs:
+        M.append([f(x) for f in fx])
+
+    M_np = np.array(M)
+    Y_np = np.array(ys).T
+
+    return np.linalg.inv(M_np.T @ M_np) @ M_np.T @ Y
+
+def predict(xs: list[float],
+            fx: list[Callable[ [float], float ]],
+            model: list[float]) -> list[float]:
+
+    Y = []
+    for x in xs:
+        res = 0
+        for i in range(len(fx)):
+            res += model[i] * fx[i](x)
+        Y.append(res)
+
+    return Y
+
+def square_diff(y: list[float], y_hat: list[float]) -> float:
+    return np.sum((np.array(y) - np.array(y_hat)) ** 2)
+
+def estimate_var(x: list[float],
+                 y: list[float],
+                 fx: list[Callable[ [float], float ]]) -> float:
+    
+    model = linear_model(x, y, fx)
+    y_hat = predict(x, fx, model)
+    se = square_diff(y, y_hat)
+    return se / (len(x) - len(fx))
+
+def ID(y: list[float], y_hat: list[float]) -> float:
+    y_np = np.array(y)
+    y_hat_np = np.array(y_hat)
+    y_mean = mean(y)
+
+    s_hat = np.sum(((y_hat_np - y_mean) ** 2)) / len(y)
+    s = np.sum(((y_np - y_mean) ** 2)) / len(y)
+    return s_hat / s
+
+def show_model(x: list[float],
+               y: list[float],
+               fx: list[Callable[ [float], float ]],
+               model: list[float]) -> None:
+    plt.scatter(x, y)
+
+    a = min(x)
+    b = max(x)
+    xx = np.linspace(a, b)
+    yy = predict(xx, fx, model)
+    plt.plot(xx, yy)
+    plt.show()
+# ---
