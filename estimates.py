@@ -1,6 +1,7 @@
-import scipy.stats
-import numpy as np
-import matplotlib.pyplot as plt
+import scipy.stats # kniznica na pracu so statistikou a pravdepodobnostou
+import numpy as np # kniznica na rychle numericke vypocty
+import matplotlib.pyplot as plt # kniznica na zobrazovanie grafov/dat
+import math
 
 from typing import Callable
 
@@ -61,6 +62,8 @@ def conf_interval_mean(samples: list[float],
                        confidence: float,
                        only_lower_upper: bool,
                        sigma: float | None = None) -> tuple[float, float]:
+    
+    # only_lower_upper nam hovori, ze chceme len jednostranne intervaly (ale obe naraz)
 
     sigma_known = False if sigma is None else True
 
@@ -83,6 +86,8 @@ def conf_interval_var(samples: list[float],
                       confidence: float,
                       only_lower_upper: bool) -> tuple[float, float]:
     
+    # only_lower_upper nam hovori, ze chceme len jednostranne intervaly (ale obe naraz)
+
     d = 1 if only_lower_upper else 2
     n = len(samples)
     var = sample_var(samples)
@@ -214,3 +219,92 @@ def show_model(x: list[float],
     plt.plot(xx, yy)
     plt.show()
 # ---
+
+"""
+# uloha 1
+X = [3, 5, 6, 7, 9]
+Y = [10, 14, 16, 18, 22]
+fx = [ lambda x: 1, lambda x: x ]
+model = linear_model(X, Y, fx)
+y_hat = predict(X, fx, model) # predikcie
+print(model) # y = 2x + 4
+print(ID(Y, y_hat)) # vsetka variabilita vysvetlena (100%)
+print(pearson_coeff(X, Y)) # r = 1
+"""
+
+"""
+# uloha 2
+
+# mame premennu s rozdelenim N(15.2, 6.25)
+# vybereme n vzorkov --> sucet n premennych z (15.2, 6.25) ma rozdelenie N(n*15.2, n*6.25)
+n = 100
+m = 15.2 * n
+var = 6.25 * n
+
+# 15.8 * n je hodnota zo zadania... P(X < 15.8 * n) (riesime pomoocou standardizovaneho normalneho rozdelenia)
+# pnorm je kumulativna distribucna funkcia standardneho normalneho rozdelenia
+print( pnorm( (15.8 * n - m) / (np.sqrt(var)) ) )
+
+n = 81
+m = 15.2 * n
+var = 6.25 * n
+
+# P(X > 15 * n) = 1 - P(X < 15 * n)
+print( 1 - pnorm( (15 * n - m) / (np.sqrt(var)) ) )
+"""
+
+"""
+# uloha 3
+
+# Vytvarame data (aj s pocetnostami)
+salary = [15 for _ in range(5)]
+salary += [20 for _ in range(16)]
+salary += [25 for _ in range(3)]
+salary += [30 for _ in range(1)]
+
+# ratame statistiky
+print(mean(salary), sample_var(salary), sample_sd(salary))
+
+# ratame intervaly spolahlivosti (v pripade rozptylu iba spodnu hranicu)
+print(conf_interval_var(salary, only_lower_upper=True, confidence=0.05)[0])
+print(conf_interval_mean(salary, only_lower_upper=False, confidence=0.05))
+"""
+
+# uloha 4
+# jeden televizor je na 98% funkcny => 2% chybne
+# teda pocet chybnych TV ma binomialne rozdelenie (800, 0.02)
+
+Probability_function = Callable[ [ int ], float ]
+Distribution_function = Callable[ [ float ], float ]
+
+def distribution_function( f: Probability_function ) -> Distribution_function:
+    """
+    Returns distribution function for given probability function
+    """
+    def inner( x: float ) -> float:
+
+        res = 0
+        for i in range( int(x) + 1 ):
+            res += f( i )
+        return res
+
+    return inner
+
+def binomial( n: int, prob: float ) -> Probability_function:
+    """
+    Binomial distribution
+    """
+    def inner( k: int ) -> float:
+        if k < 0 or k > n:
+            return 0
+        return math.comb( n, k ) * ( ( prob )**k ) * ( ( 1 - prob ) ** ( n - k ) )
+
+    return inner
+
+theta = 0.8
+n = 100
+m = 0.73
+s = np.sqrt( 0.73 * 0.27 )
+
+print( (0.73 - 0.8) / s * 10 )
+print( qnorm(1 - 0.03/2) )
